@@ -1,4 +1,4 @@
-import jwtDecode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 // 로컬 스토리지에서 JWT 토큰 가져오기
 export const getToken = () => {

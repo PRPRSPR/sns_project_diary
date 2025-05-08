@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Snackbar, Alert, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -27,7 +27,7 @@ const Login = () => {
                     console.log("로그인 유저:", user);
 
                     setOpenSnackbar(true);
-                    setTimeout(() => navigate("/"), 1500); // 홈으로 이동
+                    setTimeout(() => navigate("/home"), 1500); // 홈으로 이동
                 } else {
                     setError(data.message || "로그인 실패");
                 }
