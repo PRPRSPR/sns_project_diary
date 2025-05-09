@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { isLoggedIn } from '../utils/auth';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -34,7 +35,7 @@ const Signup = () => {
                 if (data.success) {
                     setSnackbarMsg(data.message || "회원가입 성공!");
                     setOpenSnackbar(true);
-                    setTimeout(() => navigate("/login"), 1500);
+                    setTimeout(() => navigate("/"), 1500);
                 } else {
                     setError(data.message || "회원가입 실패");
                 }
@@ -44,6 +45,13 @@ const Signup = () => {
                 setError("서버 오류가 발생했습니다.");
             });
     };
+
+    useEffect(() => {
+        if (isLoggedIn()) {
+            navigate('/home');
+            return;
+        }
+    }, [navigate]);
 
     return (
         <Container maxWidth="sm">

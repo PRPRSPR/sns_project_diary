@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Divider, List, ListItem, ListItemText, Box, Fab, TextField, Button,
+    Divider, List, ListItem, ListItemText, Box, TextField, Button,
     Typography, Dialog, DialogTitle,
     DialogContent, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,6 +12,7 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../App.css'
 import { getToken, isLoggedIn } from '../utils/auth';
+import AddButton from './AddButton';
 import { jwtDecode } from 'jwt-decode';
 
 const Home = () => {
@@ -106,8 +106,16 @@ const Home = () => {
     };
 
     useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const tokenFromUrl = urlParams.get('token');
+        if (tokenFromUrl) {
+            localStorage.setItem('token', tokenFromUrl);
+            navigate('/home', { replace: true });
+            return;
+        }
+
         if (!isLoggedIn()) {
-            navigate('/login');
+            navigate('/');
             return;
         }
         const token = getToken();
@@ -118,6 +126,8 @@ const Home = () => {
                 email = decoded.email;
             } catch (err) {
                 console.error('토큰 디코드 실패:', err);
+                navigate('/');
+                return;
             }
         }
 
@@ -130,13 +140,15 @@ const Home = () => {
             .then(data => {
                 if (data.success) {
                     setDiaries(data.list);
+                } else {
+                    console.error('다이어리 로딩 실패');
                 }
             })
             .catch(err => console.error(err));
-    }, [navigate]);
+    }, [navigate, location]);
 
     return (
-        <div style={{ padding: '32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px' }}>
             <Typography variant="h5" gutterBottom>내 달력</Typography>
 
             <Box display="flex" gap={4} flexWrap="wrap" mb={4}>
@@ -337,14 +349,7 @@ const Home = () => {
                 </DialogContent>
             </Dialog>
 
-            <Fab
-                color="primary"
-                aria-label="add"
-                onClick={() => navigate('/create')}
-                sx={{ position: 'fixed', bottom: 24, right: 24 }}
-            >
-                <AddIcon />
-            </Fab>
+            <AddButton></AddButton>
         </div>
     );
 };

@@ -139,7 +139,7 @@ const DiaryCreate = () => {
             }
 
             alert('일기 및 미디어 저장 완료!');
-            // navigate('/', { state: { openDiaryId: diaryId } });
+            navigate('/Home', { state: { openDiaryId: diaryId } });
         } catch (err) {
             console.error('업로드 에러:', err);
             alert('저장 중 오류가 발생했습니다.');
@@ -148,7 +148,7 @@ const DiaryCreate = () => {
 
     useEffect(() => {
         if (!isLoggedIn()) {
-            navigate('/login');
+            navigate('/');
             return;
         }
 

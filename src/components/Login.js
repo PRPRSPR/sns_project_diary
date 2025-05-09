@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { TextField, Button, Container, Snackbar, Alert, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Container, Snackbar, Alert, Typography, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+import { isLoggedIn } from '../utils/auth';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -13,6 +14,13 @@ const Login = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    useEffect(() => {
+            if (isLoggedIn()) {
+                navigate('/home');
+                return;
+            }
+        }, [navigate]);
+
     const handleLogin = () => {
         fetch("http://localhost:3005/user/login", {
             method: "POST",
@@ -22,12 +30,12 @@ const Login = () => {
             .then(async res => {
                 const data = await res.json();
                 if (res.ok) {
-                    localStorage.setItem("token", data.token); // 토큰 저장
-                    const user = jwtDecode(data.token);         // 토큰에서 유저 정보 추출
+                    localStorage.setItem("token", data.token);
+                    const user = jwtDecode(data.token);
                     console.log("로그인 유저:", user);
 
                     setOpenSnackbar(true);
-                    setTimeout(() => navigate("/home"), 1500); // 홈으로 이동
+                    setTimeout(() => navigate("/home"), 1000);
                 } else {
                     setError(data.message || "로그인 실패");
                 }
@@ -59,13 +67,27 @@ const Login = () => {
                 onChange={handleChange}
             />
             {error && <Typography color="error">{error}</Typography>}
-            <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={handleLogin}>
-                로그인
-            </Button>
+            <Stack spacing={2} mt={2}>
+                <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={handleLogin}>
+                    로그인
+                </Button>
+
+                <Button variant="outlined" fullWidth onClick={() => navigate('/signup')}>
+                    회원가입
+                </Button>
+
+                <Button
+                    variant="outlined"
+                    fullWidth
+                    onClick={() => window.location.href = 'http://localhost:3005/user/google'}
+                >
+                    Google 로그인
+                </Button>
+            </Stack>
 
             <Snackbar
                 open={openSnackbar}
-                autoHideDuration={1200}
+                autoHideDuration={1000}
                 onClose={() => setOpenSnackbar(false)}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
