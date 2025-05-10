@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, TextField, Button, Avatar, Typography, Stack } from '@mui/material';
+import { getToken, isLoggedIn } from '../utils/auth';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
-const ProfileEdit = ({ user }) => {
+const ProfileEdit = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nickname: '',
     bio: '',
@@ -10,18 +14,46 @@ const ProfileEdit = ({ user }) => {
   });
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        nickname: user.nickname || '',
-        bio: user.bio || '',
-        profileImage: user.profile_image || '',
-        profileImageFile: null,
-      });
+    if (!isLoggedIn()) {
+      navigate('/');
+      return;
     }
-  }, [user]);
+
+    const token = getToken();
+    let email = '';
+    try {
+      const decoded = jwtDecode(token);
+      email = decoded.email;
+    } catch (err) {
+      console.error('토큰 디코드 실패:', err);
+      navigate('/');
+      return;
+    }
+
+    fetch(`http://localhost:3005/user/${email}`, {
+      headers: {
+        'Authorization': 'Bearer ' + token,
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          let user = data.user;
+          setFormData({
+            nickname: user.nickname || '',
+            bio: user.bio || '',
+            profileImage: user.profile_image || '',
+            profileImageFile: null,
+          });
+        }
+      })
+      .catch(err => console.error(err));
+  }, [navigate]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'bio' && value.length > 255) return;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleImageChange = (e) => {
@@ -82,6 +114,7 @@ const ProfileEdit = ({ user }) => {
           name="bio"
           value={formData.bio}
           onChange={handleChange}
+          helperText={`${formData.bio.length} / 255`}
           fullWidth
           multiline
           rows={3}

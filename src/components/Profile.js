@@ -77,7 +77,9 @@ const Profile = () => {
                         src={getProfileImageUrl(user.profile_image)}
                         alt={user.nickname}
                         sx={{ width: 150, height: 150 }}
-                    />
+                    >
+                        {!user.profile_image && user.nickname?.charAt(0)}
+                    </Avatar>
                 </Box>
 
                 {/* 우측: 나머지 정보 */}

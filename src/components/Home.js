@@ -154,6 +154,12 @@ const Home = () => {
             <Box display="flex" gap={4} flexWrap="wrap" mb={4}>
                 <Calendar
                     calendarType="iso8601"
+                    tileClassName={({ date, view }) => {
+                        if (view === 'month' && date.getDay() === 6) {
+                            return 'saturday';
+                        }
+                        return null;
+                    }}
                     tileContent={({ date, view }) => {
                         if (view !== 'month') return null;
 
