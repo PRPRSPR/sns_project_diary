@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Avatar, Typography, Paper, Button, List, ListItem, ListItemAvatar, ListItemText, Divider } from '@mui/material';
+import { Box, Avatar, Typography, Paper, Button, List, ListItem, ListItemAvatar, ListItemText, Divider, Snackbar, Alert } from '@mui/material';
 import { getToken, isLoggedIn } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,11 @@ const FriendList = () => {
   const [friends, setFriends] = useState([]);
   const [recommend, setRecommend] = useState([]);
   const [requestStatus, setRequestStatus] = useState({});
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
+  // 친구 요청 및 취소
   const toggleFriendRequest = (friendEmail) => {
     const token = getToken();
     const email = jwtDecode(token).email;
@@ -80,9 +84,65 @@ const FriendList = () => {
 
   }, [navigate]);
 
+  // 친구 요청 수락
+  const handleAccept = (friendEmail) => {
+    const token = getToken();
+    const { email } = jwtDecode(token);
+
+    fetch('http://localhost:3005/friends/accept', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userEmail: email, friendEmail })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSnackbarMessage(data.message);
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+          setRequestStatus(requestStatus.filter(user => user.email !== friendEmail));  // 받은 요청 목록에서 삭제
+        }
+      })
+      .catch(err => {
+        setSnackbarMessage('친구 요청 수락 실패');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      });
+  };
+
+  // 친구 요청 거절
+  const handleReject = (friendEmail) => {
+    const token = getToken();
+    const { email } = jwtDecode(token);
+
+    fetch('http://localhost:3005/friends/cancel', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userEmail: email, friendEmail })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setSnackbarMessage('친구 요청이 거절되었습니다.');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+          setRequestStatus(requestStatus.filter(user => user.email !== friendEmail));  // 받은 요청 목록에서 삭제
+        }
+      })
+      .catch(err => {
+        setSnackbarMessage('친구 요청 거절 실패');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      });
+  };
+
   if (friends.length === 0) {
     return (
-      <Box sx={{ p: 4 }}>
+      <Box sx={{ maxWidth: 800, margin: 'auto', p: 4 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h5" gutterBottom>
             아직 하루를 공유하는 친구가 없으시군요!
@@ -92,32 +152,46 @@ const FriendList = () => {
           </Typography>
         </Box>
         <List>
-          {recommend.map(user => (
-            <ListItem key={user.email} divider>
-              <ListItemAvatar>
-                <Avatar src={/^https?:\/\//.test(user.profile_image)
-                  ? user.profile_image
-                  : `http://localhost:3005/${user.profile_image}`} />
-              </ListItemAvatar>
-              <ListItemText
-                primary={user.nickname}
-                secondary={
+          {recommend.map(user => {
+            const status = user.status;
+            return (
+              <ListItem key={user.email} divider>
+                <ListItemAvatar>
+                  <Avatar src={/^https?:\/\//.test(user.profile_image)
+                    ? user.profile_image
+                    : `http://localhost:3005/${user.profile_image}`} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={user.nickname}
+                  secondary={
+                    <>
+                      {user.email}
+                      <br />
+                      {user.bio || '자기소개가 없습니다.'}
+                    </>
+                  }
+                />
+                {status === 'friend' ? (
+                  <Button disabled>친구</Button>
+                ) : status === 'sent' ? (
+                  <Button disabled>요청 중</Button>
+                ) : status === 'received' ? (
                   <>
-                    {user.email}
-                    <br />
-                    {user.bio || '자기소개가 없습니다.'}
+                    <Button variant="contained" color="primary" onClick={() => handleAccept(user.email)}>수락</Button>
+                    <Button variant="outlined" color="error" onClick={() => handleReject(user.email)}>거절</Button>
                   </>
-                }
-              />
-              <Button
-                variant="outlined"
-                color={requestStatus[user.email] ? 'secondary' : 'primary'}
-                onClick={() => toggleFriendRequest(user.email)}
-              >
-                {requestStatus[user.email] ? '요청 취소' : '친구 요청'}
-              </Button>
-            </ListItem>
-          ))}
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color={requestStatus[user.email] ? 'secondary' : 'primary'}
+                    onClick={() => toggleFriendRequest(user.email)}
+                  >
+                    {requestStatus[user.email] ? '요청 취소' : '친구 요청'}
+                  </Button>
+                )}
+              </ListItem>
+            );
+          })}
         </List>
 
         <Box mt={4} textAlign="center">
@@ -125,43 +199,63 @@ const FriendList = () => {
             친구 검색하기
           </Button>
         </Box>
+        <Snackbar open={snackbarOpen} autoHideDuration={3000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)}>
+          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     );
   }
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 600, margin: 'auto' }}>
+    <Paper sx={{ p: 4, maxWidth: 800, margin: 'auto' }}>
       <Box>
         <Typography variant="h6" mt={4}>친구 추천</Typography>
         <List>
-          {(recommend || []).map((user) => (
-            <ListItem key={user.email}>
-              <ListItemAvatar>
-                <Avatar src={/^https?:\/\//.test(user.profile_image) ? user.profile_image : `http://localhost:3005/${user.profile_image}`} />
-              </ListItemAvatar>
-              <ListItemText primary={user.nickname} secondary={
-                <>
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
+          {(recommend || []).map((user) => {
+            const status = user.status;
+            return (
+              <ListItem key={user.email}>
+                <ListItemAvatar>
+                  <Avatar src={/^https?:\/\//.test(user.profile_image) ? user.profile_image : `http://localhost:3005/${user.profile_image}`} />
+                </ListItemAvatar>
+                <ListItemText primary={user.nickname} secondary={
+                  <>
+                    <Typography
+                      component="span"
+                      variant="body2"
+                      color="text.primary"
+                    >
+                      {user.email}
+                    </Typography>
+                    <br />
+                    {user.bio || '자기소개가 없습니다.'}
+                  </>
+                }
+                />
+                {status === 'friend' ? (
+                  <Button disabled>친구</Button>
+                ) : status === 'sent' ? (
+                  <Button disabled>요청 중</Button>
+                ) : status === 'received' ? (
+                  <>
+                    <Button variant="contained" color="primary" onClick={() => handleAccept(user.email)}>수락</Button>
+                    <Button variant="outlined" color="error" onClick={() => handleReject(user.email)}>거절</Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color={requestStatus[user.email] ? 'secondary' : 'primary'}
+                    onClick={() => toggleFriendRequest(user.email)}
                   >
-                    {user.email}
-                  </Typography>
-                  <br />
-                  {user.bio || '자기소개가 없습니다.'}
-                </>
-              }
-              />
-              <Button
-                variant="outlined"
-                color={requestStatus[user.email] ? 'secondary' : 'primary'}
-                onClick={() => toggleFriendRequest(user.email)}
-              >
-                {requestStatus[user.email] ? '요청 취소' : '친구 요청'}
-              </Button>
-            </ListItem>
-          ))}
+                    {requestStatus[user.email] ? '요청 취소' : '친구 요청'}
+                  </Button>
+                )}
+
+              </ListItem>
+            )
+          })}
         </List>
       </Box>
       <Typography variant="h5" gutterBottom>
@@ -180,6 +274,11 @@ const FriendList = () => {
           </React.Fragment>
         ))}
       </List>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} onClose={() => setSnackbarOpen(false)}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

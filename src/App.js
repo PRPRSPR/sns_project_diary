@@ -13,6 +13,7 @@ import OtherProfile from './components/OtherProfile';
 import ProfileEdit from './components/ProfileEdit';
 import Friends from './components/FriendList';
 import Notify from './components/Notification';
+import FriendRequests from './components/FriendRequests';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -36,6 +37,7 @@ function App() {
           <Route path="/profile/edit" element={<ProfileEdit />} />
           <Route path="/friends" element={<Friends />} />
           <Route path="/notify" element={<Notify />} />
+          <Route path="/friendReq" element={<FriendRequests />} />
         </Routes>
       </Box>
     </Box>

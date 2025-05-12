@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import { getToken, isLoggedIn } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
+import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
 function Notification() {
@@ -48,7 +49,7 @@ function Notification() {
                 ) : (
                     notifications.map((note, idx) => (
                         <ListItem key={idx}>
-                            <ListItemText primary={note.message} secondary={note.created_at} />
+                            <ListItemText primary={note.message} secondary={dayjs(note.created_at).format('YYYY-MM-DD HH:mm')} />
                         </ListItem>
                     ))
                 )}
