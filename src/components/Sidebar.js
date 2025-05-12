@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Toolbar, IconButton } from '@mui/material';
-import { CalendarMonth, Group, AccountCircle, Settings, Logout, Menu } from '@mui/icons-material';
+import { Drawer, List, Divider, ListItemButton, ListItemIcon, ListItemText, Toolbar, IconButton } from '@mui/material';
+import { CalendarMonth, Group, Notifications, AccountCircle, Settings, Logout, MenuRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import LogoutDialog from './LogoutDialog';
 
@@ -13,6 +13,7 @@ const Sidebar = () => {
         { text: '내 일기', icon: <CalendarMonth />, path: '/home' },
         { text: '친구들 일기', icon: <Group />, path: '/explore' },
         { text: '마이페이지', icon: <AccountCircle />, path: '/profile' },
+        { text: '알림', icon: <Notifications />, path: '/notify' },
         { text: '설정', icon: <Settings />, path: '/settings' },
         { text: '로그아웃', icon: <Logout />, action: () => setLogoutOpen(true) },
     ];
@@ -24,10 +25,11 @@ const Sidebar = () => {
     return (
         <div>
             <IconButton
-                sx={{ position: 'absolute', top: 16, left: 16, zIndex: 1300 }}
+                size="large"
+                sx={{ position: 'fixed', top: 16, left: 16, zIndex: 1300 }}
                 onClick={toggleSidebar}
             >
-                <Menu />
+                <MenuRounded sx={{ fontSize: 35 }} />
             </IconButton>
 
             <Drawer
@@ -43,20 +45,33 @@ const Sidebar = () => {
                         overflowX: 'hidden',
                         transition: 'width 0.3s ease',
                         boxSizing: 'border-box',
+                        paddingTop: 2,
                     },
                 }}
             >
                 <Toolbar />
-                <List>
-                    {menuItems.map((item) => (
-                        <ListItemButton
-                            key={item.text}
-                            onClick={() => item.action ? item.action() : navigate(item.path)}
-                            sx={{ cursor: 'pointer' }}
-                        >
-                            <ListItemIcon>{item.icon}</ListItemIcon>
-                            <ListItemText primary={item.text} />
-                        </ListItemButton>
+                <List sx={{ paddingTop: 2 }}>
+                    {menuItems.map((item, index) => (
+                        <div key={item.text}>
+                            <ListItemButton
+                                onClick={() => item.action ? item.action() : navigate(item.path)}
+                                sx={{
+                                    cursor: 'pointer',
+                                    paddingTop: 2,
+                                    paddingBottom: 2,
+                                    marginBottom: index === menuItems.length - 1 ? 0 : 1,
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: 40 }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={item.text} />
+                            </ListItemButton>
+
+                            {index !== menuItems.length - 1 && (
+                                <Divider sx={{ margin: '8px 0' }} />
+                            )}
+                        </div>
                     ))}
                 </List>
             </Drawer>

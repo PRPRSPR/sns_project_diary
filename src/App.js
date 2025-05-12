@@ -9,8 +9,10 @@ import Home from './components/Home';
 import Create from './components/Create';
 import Sidebar from './components/Sidebar';
 import Profile from './components/Profile';
+import OtherProfile from './components/OtherProfile';
 import ProfileEdit from './components/ProfileEdit';
 import Friends from './components/FriendList';
+import Notify from './components/Notification';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -30,8 +32,10 @@ function App() {
           <Route path="/create" element={<Create />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:email" element={<OtherProfile />} />
           <Route path="/profile/edit" element={<ProfileEdit />} />
           <Route path="/friends" element={<Friends />} />
+          <Route path="/notify" element={<Notify />} />
         </Routes>
       </Box>
     </Box>

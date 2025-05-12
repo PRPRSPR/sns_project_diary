@@ -69,14 +69,14 @@ const Profile = () => {
     if (!user) return <Typography>로딩 중...</Typography>;
 
     return (
-        <Paper sx={{ p: 4, maxWidth: 1000, margin: 'auto' }}>
+        <Paper sx={{ p: 4, maxWidth: 800, margin: 'auto' }}>
             <Box sx={{ display: 'flex', gap: 10 }}>
                 {/* 좌측: 프로필 이미지 */}
-                <Box sx={{ width: '40%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Box sx={{ width: '40%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <Avatar
                         src={getProfileImageUrl(user.profile_image)}
                         alt={user.nickname}
-                        sx={{ width: 150, height: 150 }}
+                        sx={{ width: 150, height: 150, m: 2 }}
                     >
                         {!user.profile_image && user.nickname?.charAt(0)}
                     </Avatar>
@@ -85,7 +85,7 @@ const Profile = () => {
                 {/* 우측: 나머지 정보 */}
                 <Box sx={{ width: '70%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        <Typography variant="h6">{user.nickname}</Typography>
+                        <Typography variant="h6" sx={{ mt: 1}}>{user.nickname}</Typography>
                         <Typography variant="body2" color="textSecondary">{user.email}</Typography>
 
                         {/* 일기 수 + 친구 수 */}

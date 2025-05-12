@@ -53,6 +53,10 @@ const ProfileEdit = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'bio' && value.length > 255) return;
+    if (name === 'nickname') {
+      const charCount = [...value].length;
+      if (charCount > 8) return;
+    }
     setFormData({ ...formData, [name]: value });
   };
 
@@ -108,6 +112,7 @@ const ProfileEdit = () => {
           value={formData.nickname}
           onChange={handleChange}
           fullWidth
+          helperText="최대 8자까지 입력 가능합니다."
         />
         <TextField
           label="소개"
