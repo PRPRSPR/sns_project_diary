@@ -10,19 +10,6 @@ export const isLoggedIn = () => {
   return !!getToken(); // 토큰이 있으면 true
 };
 
-// 토큰을 디코딩해서 사용자 정보 추출
-export const getUserInfo = () => {
-  const token = getToken();
-  if (!token) return null;
-
-  try {
-    return jwtDecode(token);
-  } catch (err) {
-    console.error("토큰 디코딩 실패:", err);
-    return null;
-  }
-};
-
 // 로그아웃 처리
 export const logout = () => {
   localStorage.removeItem('token');

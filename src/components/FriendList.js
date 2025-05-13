@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Avatar, Typography, Paper, Button, List, ListItem, ListItemAvatar, ListItemText, Divider, Snackbar, Alert } from '@mui/material';
 import { getToken, isLoggedIn } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const FriendList = () => {
   const navigate = useNavigate();
@@ -63,7 +63,6 @@ const FriendList = () => {
               .then(res => res.json())
               .then(data => {
                 if (data.success) {
-                  console.log(data);
                   setRecommend(data.recommend);
                 }
               })
@@ -102,7 +101,6 @@ const FriendList = () => {
           setSnackbarMessage(data.message);
           setSnackbarSeverity('success');
           setSnackbarOpen(true);
-          setRequestStatus(requestStatus.filter(user => user.email !== friendEmail));  // 받은 요청 목록에서 삭제
         }
       })
       .catch(err => {
@@ -130,7 +128,6 @@ const FriendList = () => {
           setSnackbarMessage('친구 요청이 거절되었습니다.');
           setSnackbarSeverity('success');
           setSnackbarOpen(true);
-          setRequestStatus(requestStatus.filter(user => user.email !== friendEmail));  // 받은 요청 목록에서 삭제
         }
       })
       .catch(err => {
@@ -156,28 +153,33 @@ const FriendList = () => {
             const status = user.status;
             return (
               <ListItem key={user.email} divider>
-                <ListItemAvatar>
-                  <Avatar src={/^https?:\/\//.test(user.profile_image)
-                    ? user.profile_image
-                    : `http://localhost:3005/${user.profile_image}`} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={user.nickname}
-                  secondary={
-                    <>
-                      {user.email}
-                      <br />
-                      {user.bio || '자기소개가 없습니다.'}
-                    </>
-                  }
-                />
+                <Link
+                  to={`/profile/${user.email}`}
+                  style={{ display: 'flex', flexGrow: 1, textDecoration: 'none', color: 'inherit' }}
+                >
+                  <ListItemAvatar>
+                    <Avatar src={/^https?:\/\//.test(user.profile_image)
+                      ? user.profile_image
+                      : `http://localhost:3005/${user.profile_image}`} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={user.nickname}
+                    secondary={
+                      <>
+                        {user.email}
+                        <br />
+                        {user.bio || '자기소개가 없습니다.'}
+                      </>
+                    }
+                  />
+                </Link>
                 {status === 'friend' ? (
                   <Button disabled>친구</Button>
                 ) : status === 'sent' ? (
                   <Button disabled>요청 중</Button>
                 ) : status === 'received' ? (
                   <>
-                    <Button variant="contained" color="primary" onClick={() => handleAccept(user.email)}>수락</Button>
+                    <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleAccept(user.email)}>수락</Button>
                     <Button variant="outlined" color="error" onClick={() => handleReject(user.email)}>거절</Button>
                   </>
                 ) : (
@@ -235,12 +237,16 @@ const FriendList = () => {
                 }
                 />
                 {status === 'friend' ? (
-                  <Button disabled>친구</Button>
-                ) : status === 'sent' ? (
-                  <Button disabled>요청 중</Button>
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    onClick={() => navigate(`/message/${user.email}`)}
+                  >
+                    메세지 보내기
+                  </Button>
                 ) : status === 'received' ? (
                   <>
-                    <Button variant="contained" color="primary" onClick={() => handleAccept(user.email)}>수락</Button>
+                    <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={() => handleAccept(user.email)}>수락</Button>
                     <Button variant="outlined" color="error" onClick={() => handleReject(user.email)}>거절</Button>
                   </>
                 ) : (
@@ -269,6 +275,13 @@ const FriendList = () => {
                 <Avatar src={/^https?:\/\//.test(friend.profile_image) ? friend.profile_image : `http://localhost:3005/${friend.profile_image}`} />
               </ListItemAvatar>
               <ListItemText primary={friend.nickname} secondary={friend.email} />
+              <Button
+                variant="outlined"
+                color="success"
+                onClick={() => navigate(`/message/${friend.email}`)}
+              >
+                메세지 보내기
+              </Button>
             </ListItem>
             {index < friends.length - 1 && <Divider />}
           </React.Fragment>

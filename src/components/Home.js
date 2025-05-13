@@ -11,7 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../App.css'
-import { getToken, isLoggedIn } from '../utils/auth';
+import { getToken, isLoggedIn, logout, isTokenExpired } from '../utils/auth';
 import AddButton from './AddButton';
 import { jwtDecode } from 'jwt-decode';
 
@@ -118,6 +118,12 @@ const Home = () => {
             navigate('/');
             return;
         }
+        if (isTokenExpired()) {
+            logout();
+            navigate('/');
+            return;
+        }
+
         const token = getToken();
         let email = '';
         if (token) {

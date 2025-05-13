@@ -117,20 +117,22 @@ const FriendRequests = () => {
     const renderRequestList = (list, isReceived = true) => (
         list.length === 0
             ? <Typography sx={{ mt: 4 }}>요청이 없습니다.</Typography>
-            : list.map((req) => (
-                <Paper key={req.email} sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar src={`http://localhost:3005/${req.profile_image}`} />
+            : list.map((user) => (
+                <Paper key={user.email} sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar src={/^https?:\/\//.test(user.profile_image)
+                        ? user.profile_image
+                        : `http://localhost:3005/${user.profile_image}`} />
                     <Box sx={{ flexGrow: 1 }}>
-                        <Typography>{req.nickname}</Typography>
-                        <Typography variant="body2" color="textSecondary">{req.email}</Typography>
+                        <Typography>{user.nickname}</Typography>
+                        <Typography variant="body2" color="textSecondary">{user.email}</Typography>
                     </Box>
                     {isReceived ? (
                         <>
-                            <Button variant="contained" color="primary" onClick={() => handleAccept(req.email)}>수락</Button>
-                            <Button variant="outlined" color="error" onClick={() => handleReject(req.email)}>거절</Button>
+                            <Button variant="contained" color="primary" onClick={() => handleAccept(user.email)}>수락</Button>
+                            <Button variant="outlined" color="error" onClick={() => handleReject(user.email)}>거절</Button>
                         </>
                     ) : (
-                        <Button variant="outlined" color="error" onClick={() => handleCancel(req.email)}>요청 취소</Button>
+                        <Button variant="outlined" color="error" onClick={() => handleCancel(user.email)}>요청 취소</Button>
                     )}
                 </Paper>
             ))

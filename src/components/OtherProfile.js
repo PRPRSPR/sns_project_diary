@@ -293,7 +293,7 @@ const OtherProfile = () => {
 
                             <Box
                                 sx={{ cursor: 'pointer', '&:hover': { opacity: 0.7 } }}
-                                onClick={() => navigate(`/friends/${email}`)}
+                                onClick={() => navigate(`/profile/${email}/friends`)}
                             >
                                 <Typography variant="body2">친구 목록</Typography>
                                 <Typography variant="h6">{friends}</Typography>

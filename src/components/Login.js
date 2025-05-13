@@ -15,11 +15,11 @@ const Login = () => {
     };
 
     useEffect(() => {
-            if (isLoggedIn()) {
-                navigate('/home');
-                return;
-            }
-        }, [navigate]);
+        if (isLoggedIn()) {
+            navigate('/home');
+            return;
+        }
+    }, [navigate]);
 
     const handleLogin = () => {
         fetch("http://localhost:3005/user/login", {
@@ -65,6 +65,12 @@ const Login = () => {
                 margin="normal"
                 value={formData.password}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleLogin();
+                    }
+                }}
             />
             {error && <Typography color="error">{error}</Typography>}
             <Stack spacing={2} mt={2}>

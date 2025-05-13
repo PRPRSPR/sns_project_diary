@@ -14,6 +14,9 @@ import ProfileEdit from './components/ProfileEdit';
 import Friends from './components/FriendList';
 import Notify from './components/Notification';
 import FriendRequests from './components/FriendRequests';
+import OtherFriendList from './components/OtherFriendList';
+import Message from './components/Message';
+import Messages from './components/Messages';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -36,8 +39,11 @@ function App() {
           <Route path="/profile/:email" element={<OtherProfile />} />
           <Route path="/profile/edit" element={<ProfileEdit />} />
           <Route path="/friends" element={<Friends />} />
+          <Route path="/friends/:email" element={<OtherFriendList />} />
           <Route path="/notify" element={<Notify />} />
           <Route path="/friendReq" element={<FriendRequests />} />
+          <Route path="/message/:email" element={<Message />} />
+          <Route path="/messages" element={<Messages />} />
         </Routes>
       </Box>
     </Box>

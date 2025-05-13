@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Drawer, List, Divider, ListItemButton, ListItemIcon, ListItemText, Toolbar, IconButton } from '@mui/material';
-import { CalendarMonth, Group, Notifications, AccountCircle, Settings, Logout, MenuRounded } from '@mui/icons-material';
+import { CalendarMonth, Group, Notifications, AccountCircle, Settings, Logout, MenuRounded, Telegram } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import LogoutDialog from './LogoutDialog';
 
@@ -12,6 +12,7 @@ const Sidebar = () => {
     const menuItems = [
         { text: '내 일기', icon: <CalendarMonth />, path: '/home' },
         { text: '친구들 일기', icon: <Group />, path: '/explore' },
+        { text: '내 대화', icon: <Telegram />, path: '/messages' },
         { text: '마이페이지', icon: <AccountCircle />, path: '/profile' },
         { text: '알림', icon: <Notifications />, path: '/notify' },
         { text: '설정', icon: <Settings />, path: '/settings' },
