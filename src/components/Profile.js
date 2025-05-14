@@ -108,7 +108,7 @@ const Profile = () => {
                         </Box>
 
                         {/* 자기소개 */}
-                        <Typography variant="body1" sx={{ mt: 3 }}>
+                        <Typography variant="body1" color='textSecondary' sx={{ mt: 3 }}>
                             {user.bio || '자기소개가 없습니다.'}
                         </Typography>
                     </Box>

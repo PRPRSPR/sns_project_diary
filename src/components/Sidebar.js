@@ -12,7 +12,7 @@ const Sidebar = () => {
     const menuItems = [
         { text: '내 일기', icon: <CalendarMonth />, path: '/home' },
         { text: '친구들 일기', icon: <Group />, path: '/explore' },
-        { text: '내 대화', icon: <Telegram />, path: '/messages' },
+        { text: '대화하기', icon: <Telegram />, path: '/messages' },
         { text: '마이페이지', icon: <AccountCircle />, path: '/profile' },
         { text: '알림', icon: <Notifications />, path: '/notify' },
         { text: '설정', icon: <Settings />, path: '/settings' },

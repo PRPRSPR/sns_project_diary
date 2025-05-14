@@ -15,6 +15,7 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 import ImageIcon from '@mui/icons-material/Image';
 import CancelIcon from '@mui/icons-material/Cancel';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { getToken, isLoggedIn } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -94,10 +95,10 @@ const MessagePage = () => {
             }
         };
 
-        // 1. 기본 스크롤
+        // 기본 스크롤
         requestAnimationFrame(scrollToBottom);
 
-        // 2. 이미지나 영상이 로드된 후에도 스크롤
+        // 이미지나 영상이 로드된 후에도 스크롤
         const mediaElements = scrollRef.current?.querySelectorAll('img, video');
         let loadedCount = 0;
 
@@ -129,6 +130,9 @@ const MessagePage = () => {
     return (
         <Box sx={{ maxWidth: '800px', margin: '0 auto' }}>
             <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <IconButton size='large' onClick={() => navigate('/messages')}>
+                    <ArrowBackIosNewIcon fontSize='large' />
+                </IconButton>
                 <Avatar
                     src={
                         friend.profile_image?.startsWith('http')

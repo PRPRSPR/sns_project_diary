@@ -1,18 +1,18 @@
 import {
-    Avatar,
+    Box,
+    Typography,
     List,
     ListItem,
     ListItemAvatar,
+    Avatar,
     ListItemText,
-    Typography,
     Divider,
-    Paper,
-    Box,
-    CircularProgress,
+    Badge,
+    CircularProgress
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getToken } from '../utils/auth';
+import { getToken, isLoggedIn } from '../utils/auth';
 import { jwtDecode } from 'jwt-decode';
 
 const ConversationListPage = () => {
@@ -23,65 +23,111 @@ const ConversationListPage = () => {
     const myEmail = jwtDecode(token).email;
 
     useEffect(() => {
-        fetch('http://localhost:3005/messages/conversations', {
+        if (!isLoggedIn()) {
+            navigate('/');
+            return;
+        }
+
+        fetch(`http://localhost:3005/messages/convers/${myEmail}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     setConversations(data.conversations);
+                    console.log(data);
                 }
             })
             .catch(err => console.error('대화 목록 불러오기 오류:', err))
             .finally(() => setLoading(false));
-    }, [token]);
+    }, [myEmail, token, navigate]);
 
-    const renderLastMessage = (message, mediaType) => {
-        if (message) return message;
-        if (mediaType === 'image') return '[사진]';
-        if (mediaType === 'video') return '[영상]';
-        if (mediaType) return '[파일]';
-        return '';
-    };
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" mt={4}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (conversations.length === 0) {
+        return (
+            <Typography align="center" mt={4}>
+                아직 대화한 친구가 없습니다.
+            </Typography>
+        );
+    }
 
     return (
-        <Paper sx={{ maxWidth: 600, margin: 'auto', mt: 4, p: 2 }}>
-            <Typography variant="h5" gutterBottom>메시지</Typography>
+        <Box maxWidth="600px" mx="auto" mt={3}>
+            <Typography variant="h5" gutterBottom>
+                대화 목록
+            </Typography>
+            <List>
+                {conversations.map((conv, idx) => {
+                    const otherEmail = conv.other_email;
+                    const otherNickname = conv.other_nickname;
+                    const otherProfile = conv.other_profile;
+                    const unread = conv.unread_count > 0;
 
-            {loading ? (
-                <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>
-            ) : conversations.length === 0 ? (
-                <Typography color="text.secondary" align="center" sx={{ mt: 2 }}>
-                    아직 시작된 대화가 없습니다.
-                </Typography>
-            ) : (
-                <List>
-                    {conversations.map((conv, index) => (
-                        <div key={conv.email}>
-                            <ListItem button onClick={() => navigate(`/messages/${conv.email}`)}>
+                    const messagePreview = conv.media_type
+                        ? conv.media_type === 'image'
+                            ? '[사진]'
+                            : conv.media_type === 'video'
+                                ? '[영상]'
+                                : '[파일]'
+                        : conv.content;
+
+                    return (
+                        <div key={idx}>
+                            <ListItem button onClick={() => navigate(`/message/${otherEmail}`)}>
                                 <ListItemAvatar>
-                                    <Avatar src={`http://localhost:3005/${conv.profile_image}`} />
+                                    <Badge
+                                        color="error"
+                                        badgeContent={conv.unread_count}
+                                        invisible={!unread}
+                                        overlap="circular"
+                                    >
+                                        <Avatar
+                                            src={
+                                                /^https?:\/\//.test(otherProfile)
+                                                    ? otherProfile
+                                                    : `http://localhost:3005/${otherProfile}`
+                                            }
+                                        />
+                                    </Badge>
                                 </ListItemAvatar>
+
                                 <ListItemText
-                                    primary={conv.nickname}
+                                    primary={
+                                        <Typography fontWeight={unread ? 'bold' : 'normal'}>
+                                            {otherNickname}
+                                        </Typography>
+                                    }
                                     secondary={
-                                        <>
-                                            <Typography variant="body2" color="text.secondary" noWrap>
-                                                {renderLastMessage(conv.last_message, conv.last_media_type)}
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                {new Date(conv.last_time).toLocaleString()}
-                                            </Typography>
-                                        </>
+                                        <Typography
+                                            noWrap
+                                            variant="body2"
+                                            color="textSecondary"
+                                            fontWeight={unread ? 'bold' : 'normal'}
+                                        >
+                                            {messagePreview}
+                                        </Typography>
                                     }
                                 />
+                                <Typography variant="caption" color="textSecondary" sx={{ minWidth: 80, textAlign: 'right' }}>
+                                    {new Date(conv.created_at).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
+                                </Typography>
                             </ListItem>
-                            {index !== conversations.length - 1 && <Divider />}
+                            {idx !== conversations.length - 1 && <Divider />}
                         </div>
-                    ))}
-                </List>
-            )}
-        </Paper>
+                    );
+                })}
+            </List>
+        </Box>
     );
 };
 

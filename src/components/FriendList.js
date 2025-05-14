@@ -174,7 +174,13 @@ const FriendList = () => {
                   />
                 </Link>
                 {status === 'friend' ? (
-                  <Button disabled>친구</Button>
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    onClick={() => navigate(`/message/${user.email}`)}
+                  >
+                    메세지 보내기
+                  </Button>
                 ) : status === 'sent' ? (
                   <Button disabled>요청 중</Button>
                 ) : status === 'received' ? (
