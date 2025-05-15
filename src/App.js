@@ -17,6 +17,7 @@ import FriendRequests from './components/FriendRequests';
 import OtherFriendList from './components/OtherFriendList';
 import Message from './components/Message';
 import Messages from './components/Messages';
+import Feed from './components/Feed';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -44,6 +45,7 @@ function App() {
           <Route path="/friendReq" element={<FriendRequests />} />
           <Route path="/message/:email" element={<Message />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/feed" element={<Feed />} />
         </Routes>
       </Box>
     </Box>

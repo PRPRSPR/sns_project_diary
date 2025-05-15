@@ -3,7 +3,13 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography }
 const CancelConfirmDialog = ({ open, onClose, onConfirm, title, content }) => {
   const isDelete = content === '친구를 삭제';
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      BackdropProps={{
+        style: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+      }}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Typography gutterBottom>정말 {content}하시겠습니까?</Typography>

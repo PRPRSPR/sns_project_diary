@@ -1,17 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { getToken, isLoggedIn } from '../utils/auth';
 import {
     TextField, Button, MenuItem, Box, Typography, Stack, Checkbox,
-    FormControlLabel, IconButton
+    FormControlLabel, IconButton, Snackbar, Alert
 } from '@mui/material';
 import { ChevronLeft, ChevronRight, Delete, Star, StarBorder, ArrowBackIosNew } from '@mui/icons-material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
 
 const emotionTags = [
     { value: 'happy', label: '기쁨' },
@@ -23,7 +22,6 @@ const emotionTags = [
 
 const DiaryCreate = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState();
     const [date, setDate] = useState(dayjs());
     const [emotion, setEmotion] = useState('');
     const [memo, setMemo] = useState('');
@@ -32,8 +30,29 @@ const DiaryCreate = () => {
     const [thumbnailIndex, setThumbnailIndex] = useState(0);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+    const [disabledDates, setDisabledDates] = useState([]);
+
+    const token = getToken();
+    const myEmail = jwtDecode(token).email;
 
     const scrollRef = useRef(null);
+    const location = useLocation();
+    const returnType = location.state?.returnType || 'home';
+    const from = location.state?.from || '/home';
+
+    const showSnackbar = (message, severity = 'info') => {
+        setSnackbarMessage(message);
+        setSnackbarSeverity(severity);
+        setSnackbarOpen(true);
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+
     // 스크롤 끝에서 영상 및 사진 로딩으로 렉걸림.
     const scrollLeft = () => {
         if (!scrollRef.current) return;
@@ -59,7 +78,7 @@ const DiaryCreate = () => {
         const newFiles = Array.from(e.target.files);
         const combined = [...files, ...newFiles];
         if (combined.length > 10) {
-            alert('최대 10개의 파일만 업로드할 수 있습니다.');
+            showSnackbar('최대 10개의 파일만 업로드할 수 있습니다.', 'warning');
             return;
         }
         setFiles(combined);
@@ -97,8 +116,12 @@ const DiaryCreate = () => {
     };
 
     const handleSubmit = async () => {
+        if (files.length === 0) {
+            showSnackbar('최소 하나의 미디어를 업로드해야 합니다.', 'warning');
+            return;
+        }
         const diaryInfo = {
-            email,
+            email: myEmail,
             date: date.format('YYYY-MM-DD'),
             emotion_tag: emotion,
             memo,
@@ -117,11 +140,12 @@ const DiaryCreate = () => {
             const data = await res.json();
 
             if (!data.success) {
-                alert('일기 저장 실패: ' + data.message);
+                showSnackbar('일기 저장 실패: ' + data.message, 'error');
                 return;
             }
 
             const diaryId = data.diaryId;
+            const selectedDate = date.format('YYYY-MM-DD');
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -139,18 +163,45 @@ const DiaryCreate = () => {
                 const mediaData = await mediaRes.json();
 
                 if (!mediaData.success) {
-                    alert('미디어 저장 실패: ' + mediaData.message);
+                    showSnackbar('미디어 저장 실패: ' + mediaData.message, 'error');
                     return;
                 }
             }
 
-            alert('일기 및 미디어 저장 완료!');
-            navigate('/Home', { state: { openDiaryId: diaryId } });
+            showSnackbar('일기 및 미디어 저장 완료!', 'success');
+            setTimeout(() => {
+                if (returnType === 'home') {
+                    navigate(from, { state: { openDiaryId: diaryId } });
+                } else if (returnType === 'feed') {
+                    navigate(from, { state: { selectedDate } });
+                }
+            }, 1000);
         } catch (err) {
             console.error('업로드 에러:', err);
-            alert('저장 중 오류가 발생했습니다.');
+            showSnackbar('저장 중 오류가 발생했습니다.', 'error');
         }
     };
+
+    const fetchDisabledDates = useCallback(() => {
+        if (!myEmail) return;
+        fetch(`http://localhost:3005/diary/date/${myEmail}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setDisabledDates(data.dates);
+                } else {
+                    console.error('서버 응답 실패:', data.message);
+                }
+            })
+            .catch(err => console.error('fetch 에러:', err));
+    }, [myEmail]);
+
+    const isDateDisabled = useCallback((targetDate) => {
+        const result = disabledDates.some(disabled =>
+            dayjs(disabled).isSame(targetDate, 'day')
+        );
+        return result;
+    }, [disabledDates]);
 
     useEffect(() => {
         if (!isLoggedIn()) {
@@ -158,20 +209,36 @@ const DiaryCreate = () => {
             return;
         }
 
-        const token = getToken();
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setEmail(decoded.email);
-            } catch (err) {
-                console.error('토큰 디코드 실패:', err);
-            }
-        }
-    }, [navigate]);
+        fetchDisabledDates();
+
+    }, [navigate, fetchDisabledDates]);
 
     useEffect(() => {
         updateScrollButtons();
     }, [files]);
+
+    useEffect(() => {
+        if (!date || !disabledDates.length) return;
+
+        if (isDateDisabled(date)) {
+            // 과거로 가능한 날짜 찾기
+            let offset = 1;
+            let candidate = dayjs().subtract(offset, 'day');
+
+            while (
+                isDateDisabled(candidate) &&
+                offset < 365
+            ) {
+                offset++;
+                candidate = dayjs().subtract(offset, 'day');
+            }
+
+            setDate(candidate);
+            showSnackbar('이미 일기를 작성한 날짜여서 다른 날짜로 자동 이동했습니다.');
+        }
+    }, [date, disabledDates, isDateDisabled]);
+
+    const isSelectedDateDisabled = date && isDateDisabled(date);
 
     return (
         <Box>
@@ -191,7 +258,12 @@ const DiaryCreate = () => {
                                 if (newDate) setDate(newDate);
                             }}
                             format="YYYY/MM/DD"
+                            shouldDisableDate={isDateDisabled}
                             disableFuture
+                            error={isSelectedDateDisabled}
+                            helperText={
+                                isSelectedDateDisabled ? '해당 날짜는 이미 일기가 작성되어 다른 날짜로 자동 이동되었습니다.' : ''
+                            }
                         />
                     </LocalizationProvider>
 
@@ -350,6 +422,16 @@ const DiaryCreate = () => {
                     <Button variant="contained" onClick={handleSubmit}>저장</Button>
                 </Stack>
             </Box>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
