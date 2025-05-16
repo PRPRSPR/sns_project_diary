@@ -89,6 +89,13 @@ const Login = () => {
                 >
                     Google 로그인
                 </Button>
+                <Button
+                    variant="text"
+                    fullWidth
+                    onClick={() => navigate('/forgot-pwd')}
+                >
+                    비밀번호를 잊으셨나요?
+                </Button>
             </Stack>
 
             <Snackbar
