@@ -1,21 +1,35 @@
 import { useState } from 'react';
 import { TextField, Button, Container, Typography, Snackbar, Alert } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { isLoggedIn } from '../utils/auth';
 
 const ForgotPwd = () => {
     const [email, setEmail] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const navigate = useNavigate();
+
+    const isValidEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
 
     const handleSubmit = () => {
+        if (!isValidEmail(email)) {
+            setErrorMessage('유효한 이메일 주소를 입력해주세요.');
+            setOpenSnackbar(true);
+            return;
+        }
+
         fetch('http://localhost:3005/user/forgot-pwd', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email }),
         })
-            .then(async (res) => {
-                const data = await res.json();
-                if (res.ok) {
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
                     setSuccessMessage(data.message || '비밀번호 재설정 메일이 발송되었습니다.');
                 } else {
                     setErrorMessage(data.message || '이메일을 찾을 수 없습니다.');
@@ -28,6 +42,13 @@ const ForgotPwd = () => {
                 setOpenSnackbar(true);
             });
     };
+
+    useEffect(() => {
+        if (isLoggedIn()) {
+            navigate('/home');
+            return;
+        }
+    }, [navigate]);
 
     return (
         <Container maxWidth="xs" sx={{ mt: 10 }}>

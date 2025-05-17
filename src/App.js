@@ -18,6 +18,8 @@ import OtherFriendList from './components/OtherFriendList';
 import Message from './components/Message';
 import Messages from './components/Messages';
 import Feed from './components/Feed';
+import ForgotPwd from './components/ForgotPwd';
+import ResetPwd from './components/ResetPwd';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -46,6 +48,8 @@ function App() {
           <Route path="/message/:email" element={<Message />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/feed" element={<Feed />} />
+          <Route path="/forgot-pwd" element={<ForgotPwd />} />
+          <Route path="/reset-pwd" element={<ResetPwd />} />
         </Routes>
       </Box>
     </Box>
