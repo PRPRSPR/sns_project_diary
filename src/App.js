@@ -20,17 +20,18 @@ import Messages from './components/Messages';
 import Feed from './components/Feed';
 import ForgotPwd from './components/ForgotPwd';
 import ResetPwd from './components/ResetPwd';
+import BackButton from './components/BackButton';
 
 function App() {
   const [open, setOpen] = useState(false);
-
   const location = useLocation();
-  const hideSidebar = location.pathname === '/' || location.pathname === '/signup';
-
+  const hideSidebar = location.pathname === '/' || location.pathname === '/signup' || location.pathname === '/forgot-pwd' || location.pathname === '/reset-pwd';
+  
   return (
     <Box sx={{ display: 'flex' }}>
       {!hideSidebar && <Sidebar open={open} setOpen={setOpen} />}
-      <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: !hideSidebar && open ? 240 : 0, transition: 'margin-left 0.3s ease' }}>
+      {!hideSidebar && <BackButton sidebarOpen={open} hideSidebar={hideSidebar} />}
+      <Box component="main" sx={{ flexGrow: 1, p: 3, marginLeft: !hideSidebar && open ? '50px' : '0px', transition: 'margin-left 0.3s ease' }}>
         {!hideSidebar && <Toolbar />}
         <Routes>
           <Route path="/signup" element={<Signup />} />
@@ -49,7 +50,7 @@ function App() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/forgot-pwd" element={<ForgotPwd />} />
-          <Route path="/reset-pwd" element={<ResetPwd />} />
+          <Route path="/reset-pwd/:token" element={<ResetPwd />} />
         </Routes>
       </Box>
     </Box>

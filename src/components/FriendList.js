@@ -140,6 +140,18 @@ const FriendList = () => {
   if (friends.length === 0) {
     return (
       <Box sx={{ maxWidth: 800, margin: 'auto', p: 4 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+          <Typography variant="h5" gutterBottom>
+            친구 목록
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate('/friends/requests')}
+          >
+            친구 요청 목록
+          </Button>
+        </Box>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h5" gutterBottom>
             아직 하루를 공유하는 친구가 없으시군요!
@@ -270,9 +282,19 @@ const FriendList = () => {
           })}
         </List>
       </Box>
-      <Typography variant="h5" gutterBottom>
-        친구 목록
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+        <Typography variant="h5" gutterBottom>
+          친구 목록
+        </Typography>
+        <Button
+          sx={{mr:2}}
+          variant="contained"
+          color="info"
+          onClick={() => navigate('/friendReq')}
+        >
+          친구 요청 확인
+        </Button>
+      </Box>
       <List>
         {friends.map((friend, index) => (
           <React.Fragment key={friend.email}>

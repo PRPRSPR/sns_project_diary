@@ -4,9 +4,8 @@ import { CalendarMonth, Group, Notifications, AccountCircle, Settings, Logout, M
 import { useNavigate } from 'react-router-dom';
 import LogoutDialog from './LogoutDialog';
 
-const Sidebar = () => {
+const Sidebar = ({ open, setOpen }) => {
     const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
     const [logoutOpen, setLogoutOpen] = useState(false);
 
     const menuItems = [

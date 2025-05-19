@@ -38,7 +38,7 @@ const ResetPassword = () => {
     const isValidPassword = Object.values(validation).every(v => v === true);
 
     const handleSubmit = () => {
-        if (!isValidPassword(newPassword)) {
+        if (!isValidPassword) {
             setError('비밀번호 조건을 모두 만족해야 합니다.');
             return;
         }
