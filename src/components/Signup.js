@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import debounce from 'lodash.debounce';
 import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ const Signup = () => {
             if (!/\d/.test(formData.password)) {
                 errors.password = '비밀번호에 숫자를 포함해야 합니다.';
             }
-            if (!/[!@#$%^&*(),.?":{}|<>_\-]/.test(formData.password)) {
+            if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(formData.password)) {
                 errors.password = '비밀번호에 특수문자를 포함해야 합니다.';
             }
         }
@@ -69,7 +69,7 @@ const Signup = () => {
             } else {
                 if (!/[A-Za-z]/.test(value)) message = "영문자를 포함해야 합니다.";
                 else if (!/\d/.test(value)) message = "숫자를 포함해야 합니다.";
-                else if (!/[!@#$%^&*(),.?":{}|<>_\-]/.test(value)) message = "특수문자를 포함해야 합니다.";
+                else if (!/[!@#$%^&*(),.?":{}|<>_-]/.test(value)) message = "특수문자를 포함해야 합니다.";
             }
         }
 
@@ -108,29 +108,29 @@ const Signup = () => {
             });
     };
 
-    const debouncedCheckEmail = useCallback(
-        debounce((email) => {
+    const debouncedCheckEmail = useMemo(() => {
+        return debounce((email) => {
             fetch(`http://localhost:3005/user/check-email/${email}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    if (!data.success) {
-                        setValidationErrors((prev) => ({
-                            ...prev,
-                            email: "이미 사용 중인 이메일입니다.",
-                        }));
-                    } else {
-                        setValidationErrors((prev) => ({
-                            ...prev,
-                            email: "",
-                        }));
-                    }
+                    setValidationErrors((prev) => ({
+                        ...prev,
+                        email: data.success ? "" : "이미 사용 중인 이메일입니다.",
+                    }));
                 })
                 .catch((err) => {
                     console.error("이메일 중복 확인 실패:", err);
                 });
-        }, 400),
-        []
-    );
+        }, 400);
+    }, [setValidationErrors]);
+
+    useEffect(() => {
+        if (!debouncedCheckEmail?.cancel) return;
+
+        return () => {
+            debouncedCheckEmail.cancel();
+        };
+    }, [debouncedCheckEmail]);
 
     useEffect(() => {
         if (isLoggedIn()) {
