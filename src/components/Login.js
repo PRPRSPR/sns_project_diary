@@ -22,7 +22,7 @@ const Login = () => {
     }, [navigate]);
 
     const handleLogin = () => {
-        fetch("http://localhost:3005/user/login", {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
@@ -80,7 +80,7 @@ const Login = () => {
                     매일의 소중한 기억을 기록하고 친구들과 공유하세요.
                 </Typography>
                 <img
-                    src="http://localhost:3005/uploads/diaryFront.jpg"
+                    src={`${process.env.REACT_APP_S3_BASE_URL}/uploads/diaryFront.jpg`}
                     alt="Login Illustration"
                     style={{ width: '60%', marginTop: 50, borderRadius: 12 }}
                 />
@@ -156,7 +156,7 @@ const Login = () => {
                             variant="outlined"
                             fullWidth
                             sx={{ backgroundColor: '#fff' }}
-                            onClick={() => window.location.href = 'http://localhost:3005/user/google'}
+                            onClick={() => window.location.href = `${process.env.REACT_APP_API_BASE_URL}/user/google`}
                         >
                             Google 로그인
                         </Button>

@@ -74,7 +74,7 @@ const Feed = () => {
     const email = jwtDecode(token).email;
 
     const handleOpen = (diary) => {
-        fetch(`http://localhost:3005/diary/detail/${diary.id}`)
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/detail/${diary.id}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -115,7 +115,7 @@ const Feed = () => {
 
     const handleDelete = async () => {
         try {
-            fetch(`http://localhost:3005/diary/${selectedDiary.id}`, {
+            fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/${selectedDiary.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -157,7 +157,7 @@ const Feed = () => {
         }
 
         try {
-            fetch(`http://localhost:3005/diary/${selectedDiary.id}`, {
+            fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/${selectedDiary.id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -400,7 +400,7 @@ const Feed = () => {
             return;
         }
 
-        fetch(`http://localhost:3005/comments/${selectedDiary.id}`, {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/comments/${selectedDiary.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -436,7 +436,7 @@ const Feed = () => {
             return;
         }
 
-        fetch(`http://localhost:3005/comments/${commentId}`, {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/comments/${commentId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -465,7 +465,7 @@ const Feed = () => {
     };
 
     const handleDeleteComment = (commentId) => {
-        fetch(`http://localhost:3005/comments/${commentId}`, {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/comments/${commentId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -494,14 +494,14 @@ const Feed = () => {
             });
     };
 
-    const getProfileImageUrl = (path) => {
-        if (!path) return '';
-        const isFullUrl = /^https?:\/\//i.test(path);
-        return isFullUrl ? path : `http://localhost:3005/${path}`;
-    };
+    // const getProfileImageUrl = (path) => {
+    //     if (!path) return '';
+    //     const isFullUrl = /^https?:\/\//i.test(path);
+    //     return isFullUrl ? path : `${process.env.REACT_APP_API_BASE_URL}/${path}`;
+    // };
 
     const openDiary = useCallback((date) => {
-        fetch(`http://localhost:3005/diary/all/${date}`, {
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/all/${date}`, {
             headers: {
                 'Authorization': 'Bearer ' + token,
             }
@@ -557,7 +557,7 @@ const Feed = () => {
 
     useEffect(() => {
         if (openDiaryDate) {
-            fetch(`http://localhost:3005/diary/detail/${openDiaryDate}`)
+            fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/detail/${openDiaryDate}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
@@ -675,7 +675,8 @@ const Feed = () => {
                                         {diary.thumbnailPath?.endsWith('.mp4') ? (
                                             <CardMedia
                                                 component="video"
-                                                src={`http://localhost:3005/${diary.thumbnailPath}`}
+                                                // src={`${process.env.REACT_APP_API_BASE_URL}/${diary.thumbnailPath}`}
+                                                src={`${diary.thumbnailPath}`}
                                                 autoPlay
                                                 muted
                                                 loop
@@ -688,7 +689,8 @@ const Feed = () => {
                                         ) : (
                                             <CardMedia
                                                 component="img"
-                                                src={`http://localhost:3005/${diary.thumbnailPath}`}
+                                                // src={`${process.env.REACT_APP_API_BASE_URL}/${diary.thumbnailPath}`}
+                                                src={`${diary.thumbnailPath}`}
                                                 sx={{
                                                     width: '100%',
                                                     height: '100%',
@@ -701,7 +703,8 @@ const Feed = () => {
                                         {/* 작성자 정보 (프로필 이미지 + 닉네임) */}
                                         <Box display="flex" alignItems="center" mb={1} mt={4} gap={1}>
                                             <Avatar
-                                                src={getProfileImageUrl(diary.profile_image)}
+                                                // src={getProfileImageUrl(diary.profile_image)}
+                                                src={diary.profile_image}
                                                 alt={diary.nickname}
                                                 sx={{ width: 32, height: 32 }}
                                             />
@@ -820,7 +823,8 @@ const Feed = () => {
                                         >
                                             {mediaList[currentIndex].mediaType === 'image' ? (
                                                 <img
-                                                    src={`http://localhost:3005/${mediaList[currentIndex].mediaPath}`}
+                                                    // src={`${process.env.REACT_APP_API_BASE_URL}/${mediaList[currentIndex].mediaPath}`}
+                                                    src={`${mediaList[currentIndex].mediaPath}`}
                                                     key={mediaList[currentIndex].id}
                                                     alt="media"
                                                     style={{
@@ -840,7 +844,8 @@ const Feed = () => {
                                                     }}
                                                 >
                                                     <source
-                                                        src={`http://localhost:3005/${mediaList[currentIndex].mediaPath}`}
+                                                        // src={`${process.env.REACT_APP_API_BASE_URL}/${mediaList[currentIndex].mediaPath}`}
+                                                        src={`${mediaList[currentIndex].mediaPath}`}
                                                         type="video/mp4"
                                                     />
                                                 </video>

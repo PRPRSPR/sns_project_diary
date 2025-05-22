@@ -129,7 +129,7 @@ const DiaryCreate = () => {
         };
 
         try {
-            const res = await fetch('http://localhost:3005/diary/create', {
+            const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ const DiaryCreate = () => {
                 formData.append('thumbnailYn', i === thumbnailIndex ? 'Y' : 'N');
                 formData.append('order', i.toString());
 
-                const mediaRes = await fetch('http://localhost:3005/media/upload/' + diaryId, {
+                const mediaRes = await fetch(`${process.env.REACT_APP_API_BASE_URL}/media/upload/${diaryId}`, {
                     method: 'POST',
                     body: formData,
                 });
@@ -184,7 +184,7 @@ const DiaryCreate = () => {
 
     const fetchDisabledDates = useCallback(() => {
         if (!myEmail) return;
-        fetch(`http://localhost:3005/diary/date/${myEmail}`)
+        fetch(`${process.env.REACT_APP_API_BASE_URL}/diary/date/${myEmail}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
